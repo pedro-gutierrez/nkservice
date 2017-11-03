@@ -45,7 +45,7 @@
 %% ===================================================================
 
 
--type method() :: get | post | head | delete | put | binary().
+-type method() :: get | post | head | delete | put | options |  binary().
 
 -type code() :: 100 .. 599.
 
@@ -206,6 +206,7 @@ init(HttpReq, [{srv_id, SrvId}]) ->
         <<"PUT">> -> put;
         <<"DELETE">> -> delete;
         <<"HEAD">> -> head;
+        <<"OPTIONS">> -> options;
         OtherMethod -> OtherMethod
     end,
     Path = case cowboy_req:path_info(HttpReq) of
