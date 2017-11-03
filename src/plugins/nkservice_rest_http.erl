@@ -22,7 +22,7 @@
 -module(nkservice_rest_http).
 -export([get_srv_id/1, get_body/2, get_qs/1, get_ct/1, get_basic_auth/1, get_headers/1, get_peer/1]).
 -export([get_accept/1]).
--export([reply_json/2]).
+-export([reply_json/2, reply_json/3]).
 -export([init/2, terminate/3]).
 -export_type([method/0, reply/0, code/0, header/0, body/0, state/0, path/0, http_qs/0]).
 
@@ -174,9 +174,7 @@ get_peer(#req{req=Req}) ->
 
 %% @doc
 reply_json({ok, Data}, _Req) ->
-    Hds = [{<<"Content-Tytpe">>, <<"application/json">>}],
-    Body = nklib_json:encode(Data),
-    {http, 200, Hds, Body};
+    reply_json({ok, Data}, [], _Req);
 
 reply_json({error, Error}, #req{srv_id=SrvId}) ->
     Hds = [{<<"Content-Tytpe">>, <<"application/json">>}],
@@ -184,6 +182,10 @@ reply_json({error, Error}, #req{srv_id=SrvId}) ->
     Body = nklib_json:encode(#{result=>error, data=>#{code=>Code, error=>Txt}}),
     {http, 400, Hds, Body}.
 
+reply_json({ok, Data}, Headers, _Req) ->
+    Hds = [{<<"Content-Tytpe">>, <<"application/json">>}|Headers],
+    Body = nklib_json:encode(Data),
+    {http, 200, Hds, Body}.
 
 
 %% ===================================================================
