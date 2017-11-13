@@ -131,7 +131,18 @@ get_qs(#req{req=Req}) ->
     binary().
 
 get_ct(#req{req=Req}) ->
-    cowboy_req:header(<<"content-type">>, Req).
+    case cowboy_req:parse_header(<<"content-type">>, Req) of
+        {<<"multipart">>, <<"form-data">>, _} ->
+            case cowboy_req:read_part(Req) of
+                {ok, PartHeaders, Req2} ->
+                    io:format("request part headers: ~p~n", [PartHeaders]),
+                    cowboy_req:header(<<"content-type">>, Req2);
+                Other ->
+                    {error, Other}
+            end;
+        _ ->
+            cowboy_req:header(<<"content-type">>, Req)
+    end.
 
 
 %% @doc
